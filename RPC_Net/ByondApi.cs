@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -7,33 +6,33 @@ using System.Threading.Tasks;
 
 namespace RPC
 {
-    class ByondTopic
+    class ByondApi
     {
-        public static async Task<string> SendTopicCommandAsync(string hostAddress, string port, string command)
+        public static async Task<string> SendTopicCommandAsync(string ip, int port, string command = "status")
         {
+            IPAddress address;
+
             try
             {
-                var message = BuildMessage(command);
-                var buffer = new byte[4096];
-                if (!IPAddress.TryParse(hostAddress, out var address))
-                {
-                    var host = await Dns.GetHostEntryAsync(hostAddress);
-                    address = host.AddressList[0];
-                }
-                var endPoint = new IPEndPoint(address, int.Parse(port));
+                var host = await Dns.GetHostEntryAsync(ip);
+                address = host.AddressList[0];
+            }
+            catch { throw new Exception("Error: Connection failed"); }
 
-                Socket sender = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                sender.Connect(endPoint);
+            var message = BuildMessage(command);
+            var buffer = new byte[4096];
+            int bytesGot;
+
+            using (Socket sender = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                try { sender.Connect(address, port); }
+                catch { throw new Exception("Error: Connection failed"); }
 
                 sender.Send(message);
-
-                int bytesGot = sender.Receive(buffer);
-
-                sender.Shutdown(SocketShutdown.Both);
-
-                return ParseMessage(buffer, bytesGot);
+                bytesGot = sender.Receive(buffer);
             }
-            catch { return null; }
+
+            return ParseMessage(buffer, bytesGot);
         }
 
         private static byte[] BuildMessage(string command)
