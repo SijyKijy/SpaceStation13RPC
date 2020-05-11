@@ -30,10 +30,10 @@ jobs:
       uses: actions/upload-artifact@v1.0.0
       with:
         name: "RPC"
-        path: bin\Release
+        path: RPC\bin\Release
 
     - name: Create Profiler Artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         name: "Profiler"
-        path: bin\Release
+        path: Profiler\bin\Release
