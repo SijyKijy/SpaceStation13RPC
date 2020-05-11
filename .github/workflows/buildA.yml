@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     env:
-      repoName: "SpaceStation13RPC" 
+      repoName: "SS13RPC" 
     runs-on: windows-latest
  
     steps:
